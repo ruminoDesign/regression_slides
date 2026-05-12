@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>실습 과제 — 자취방 월세 예측</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0f0f0f;
+    --white: #ffffff;
+    --gray-1: #1a1a1a;
+    --gray-2: #333;
+    --gray-3: #666;
+    --gray-4: #999;
+    --gray-5: #ccc;
+    --gray-6: #e8e8e8;
+    --gray-7: #f4f4f4;
+    --accent: #0f0f0f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.7;
+  }
+
+  /* ── 네비 바 ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 52px;
+    background: var(--white);
+    border-bottom: 1.5px solid var(--black);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .nav-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: var(--black);
+    color: var(--white);
+    padding: 5px 14px;
+    margin-right: 20px;
+  }
+
+  .nav-course {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gray-4);
+    letter-spacing: 0.05em;
+  }
+
+  .nav-right {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gray-5);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── 히어로 ── */
+  .hero {
+    margin-top: 52px;
+    padding: 80px 32px 64px;
+    max-width: 980px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 52px;
+    border-bottom: 1px solid var(--gray-6);
+  }
+
+  .hero-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gray-4);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hero-label::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1.5px;
+    background: var(--gray-4);
+  }
+
+  .hero-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--black);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-title .underline {
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-title .underline::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 2px;
+    height: 3px;
+    background: var(--black);
+  }
+
+  .hero-desc {
+    font-size: 16px;
+    color: var(--gray-3);
+    font-weight: 300;
+    max-width: 560px;
+    line-height: 1.8;
+    margin-bottom: 36px;
+  }
+
+  .hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1.5px solid var(--gray-5);
+    color: var(--gray-3);
+    padding: 5px 12px;
+  }
+
+  /* ── 본문 그리드 ── */
+  .main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 32px 100px;
+  }
+
+  /* ── 섹션 타이틀 공통 ── */
+  .sec-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray-4);
+    margin-bottom: 6px;
+    margin-top: 64px;
+  }
+
+  .sec-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--black);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--black);
+  }
+
+  /* ── 스텝 블록 ── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 0 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--gray-6);
+    opacity: 0;
+    transform: translateX(-16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .step.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--gray-6);
+    line-height: 1;
+    padding-top: 4px;
+    text-align: right;
+  }
+
+  .step-content h3 {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 6px;
+  }
+
+  .step-content p {
+    font-size: 13.5px;
+    color: var(--gray-3);
+    line-height: 1.75;
+  }
+
+  .step-content code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--gray-7);
+    padding: 1px 6px;
+    color: var(--gray-2);
+  }
+
+  .step-tag {
+    display: inline-block;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--black);
+    color: var(--white);
+    padding: 3px 8px;
+  }
+
+  /* ── 변수 테이블 ── */
+  .var-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .var-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--black);
+    color: var(--white);
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .var-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--gray-6);
+    color: var(--gray-2);
+    line-height: 1.5;
+    vertical-align: top;
+  }
+
+  .var-table tr:nth-child(even) td { background: var(--gray-7); }
+
+  .var-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--black);
+    font-weight: 500;
+  }
+
+  .badge-keep {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .badge-check {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border: 1px solid var(--gray-5);
+    color: var(--gray-3);
+  }
+
+  /* ── 후보 집 카드 ── */
+  .houses-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .house-card {
+    border: 1.5px solid var(--gray-6);
+    padding: 20px 22px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .house-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .house-card:nth-child(2) { transition-delay: 0.08s; }
+  .house-card:nth-child(3) { transition-delay: 0.16s; }
+  .house-card:nth-child(4) { transition-delay: 0.24s; }
+  .house-card:nth-child(5) { transition-delay: 0.32s; }
+
+  .house-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray-4);
+    margin-bottom: 10px;
+  }
+
+  .house-name {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--black);
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gray-6);
+  }
+
+  .house-vars {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .house-var {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+  }
+
+  .hv-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gray-4);
+  }
+
+  .hv-val {
+    font-weight: 500;
+    color: var(--black);
+  }
+
+  .house-card.wide {
+    grid-column: span 2;
+  }
+
+  /* ── 제출 박스 ── */
+  .submit-box {
+    border: 2px solid var(--black);
+    padding: 28px 32px;
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .sb-item h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray-4);
+    margin-bottom: 8px;
+  }
+
+  .sb-item p {
+    font-size: 13.5px;
+    color: var(--gray-2);
+    line-height: 1.75;
+  }
+
+  .sb-item ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .sb-item ul li {
+    font-size: 13px;
+    color: var(--gray-2);
+    line-height: 1.6;
+    display: flex;
+    gap: 8px;
+  }
+
+  .sb-item ul li::before {
+    content: '→';
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gray-5);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── 데이터 URL 박스 ── */
+  .data-url-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1.5px dashed var(--gray-5);
+    padding: 14px 18px;
+    margin-top: 16px;
+    background: var(--gray-7);
+  }
+
+  .dub-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray-4);
+    white-space: nowrap;
+  }
+
+  .dub-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gray-2);
+    word-break: break-all;
+  }
+
+  /* ── 푸터 ── */
+  .footer {
+    border-top: 2px solid var(--black);
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 32px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--black);
+  }
+
+  .footer-right {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gray-4);
+    letter-spacing: 0.1em;
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  @media (max-width: 640px) {
+    .hero-title { font-size: 34px; }
+    .houses-grid { grid-template-columns: 1fr; }
+    .house-card.wide { grid-column: span 1; }
+    .submit-box { grid-template-columns: 1fr; }
+    .footer { flex-direction: column; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 네비 -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-badge">과제 · Assignment</div>
+    <div class="nav-course">동물자원과학과 · 데이터분석 실습</div>
+    <div class="nav-right">Google Colab · Python</div>
+  </div>
+</nav>
+
+<!-- 히어로 -->
+<div class="hero">
+  <div class="hero-label">실습 과제 03</div>
+  <div class="hero-title">
+    후보 집 5곳의<br>
+    <span class="underline">월세를 예측</span>하고<br>
+    어디서 살지 결정하라
+  </div>
+  <div class="hero-desc">
+    회귀분석 모델을 직접 구축하고, 실제로 조사한 것처럼 주어진 5개 후보 자취방의
+    예상 월세를 계산한 뒤, 본인이 선택할 집을 이유와 함께 제시하시오.
+  </div>
+  <div class="hero-chips">
+    <div class="chip">다중회귀분석</div>
+    <div class="chip">변수 선택</div>
+    <div class="chip">모델 구축</div>
+    <div class="chip">예측값 계산</div>
+    <div class="chip">Google Colab</div>
+  </div>
+</div>
+
+<!-- 본문 -->
+<div class="main">
+
+  <!-- STEP 섹션 -->
+  <div class="sec-label">과제 절차</div>
+  <div class="sec-title">Step by Step</div>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <h3>데이터 불러오기</h3>
+        <p>
+          아래 GitHub URL에서 <code>rent_homework.csv</code>를 직접 로드한다.<br>
+          <code>pd.read_csv(URL)</code> 한 줄로 DataFrame을 만들고,
+          <code>describe()</code>로 각 변수의 범위를 먼저 파악한다.
+        </p>
+        <span class="step-tag">pandas</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <h3>상관분석 — 변수 선택</h3>
+        <p>
+          독립변수 5개와 <code>rent</code>의 상관계수를 계산한다.<br>
+          상관관계가 낮은 변수를 <strong>스스로 판단하여 제외</strong>하고,
+          제외한 이유를 코드 주석으로 남긴다.
+        </p>
+        <span class="step-tag">corr()</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <h3>회귀모델 구축</h3>
+        <p>
+          선택한 변수로 <code>LinearRegression</code> 모델을 학습한다.<br>
+          각 회귀계수와 R²을 출력하고, 계수의 의미를 해석한다.<br>
+          학습된 모델은 <code>pickle</code>로 저장한다.
+        </p>
+        <span class="step-tag">sklearn · pickle</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <h3>후보 집 5곳 월세 예측</h3>
+        <p>
+          아래 제시된 후보 집 5곳의 조건을 모델에 입력하여
+          각각의 <strong>예상 월세를 계산</strong>한다.
+          5개 결과를 한 번에 출력하도록 코드를 작성한다.
+        </p>
+        <span class="step-tag">model.predict()</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-content">
+        <h3>최종 선택 & 이유 서술</h3>
+        <p>
+          5곳 중 본인이 살고 싶은 집을 <strong>1곳 선택</strong>하고,
+          예측 월세와 조건을 근거로 선택 이유를 코드 셀 아래
+          마크다운으로 3줄 이상 작성한다.
+        </p>
+        <span class="step-tag">markdown</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 변수 설명 -->
+  <div class="sec-label">데이터 구성</div>
+  <div class="sec-title">독립변수 5개 · 종속변수 1개</div>
+
+  <div class="data-url-box">
+    <div class="dub-label">Data URL</div>
+    <div class="dub-url">https://raw.githubusercontent.com/ruminoDesign/regression_slides/refs/heads/main/rent_homework.csv</div>
+  </div>
+
+  <table class="var-table" style="margin-top:20px;">
+    <tr>
+      <th>변수명</th>
+      <th>설명</th>
+      <th>단위</th>
+      <th>판단</th>
+    </tr>
+    <tr>
+      <td>area</td>
+      <td>전용면적</td>
+      <td>㎡</td>
+      <td><span class="badge-keep">분석 포함</span></td>
+    </tr>
+    <tr>
+      <td>dist_subway</td>
+      <td>가장 가까운 지하철역까지 거리</td>
+      <td>m</td>
+      <td><span class="badge-keep">분석 포함</span></td>
+    </tr>
+    <tr>
+      <td>floor</td>
+      <td>층수</td>
+      <td>층</td>
+      <td><span class="badge-keep">분석 포함</span></td>
+    </tr>
+    <tr>
+      <td>build_year</td>
+      <td>건축연도</td>
+      <td>년</td>
+      <td><span class="badge-keep">분석 포함</span></td>
+    </tr>
+    <tr>
+      <td>noise_level</td>
+      <td>소음지수 (1=조용, 10=매우 시끄러움)</td>
+      <td>점</td>
+      <td><span class="badge-check">상관분석 후 판단</span></td>
+    </tr>
+    <tr>
+      <td><strong>rent</strong></td>
+      <td><strong>월세 — 종속변수</strong></td>
+      <td><strong>만원</strong></td>
+      <td>—</td>
+    </tr>
+  </table>
+
+  <!-- 후보 집 5개 -->
+  <div class="sec-label">예측 대상</div>
+  <div class="sec-title">후보 자취방 5곳</div>
+
+  <div class="houses-grid">
+
+    <div class="house-card">
+      <div class="house-num">House 01</div>
+      <div class="house-name">마포구 합정동 빌라</div>
+      <div class="house-vars">
+        <div class="house-var"><span class="hv-key">area</span><span class="hv-val">26 ㎡</span></div>
+        <div class="house-var"><span class="hv-key">dist_subway</span><span class="hv-val">280 m</span></div>
+        <div class="house-var"><span class="hv-key">floor</span><span class="hv-val">3 층</span></div>
+        <div class="house-var"><span class="hv-key">build_year</span><span class="hv-val">2009 년</span></div>
+        <div class="house-var"><span class="hv-key">noise_level</span><span class="hv-val">7 점</span></div>
+      </div>
+    </div>
+
+    <div class="house-card">
+      <div class="house-num">House 02</div>
+      <div class="house-name">성동구 성수동 오피스텔</div>
+      <div class="house-vars">
+        <div class="house-var"><span class="hv-key">area</span><span class="hv-val">33 ㎡</span></div>
+        <div class="house-var"><span class="hv-key">dist_subway</span><span class="hv-val">650 m</span></div>
+        <div class="house-var"><span class="hv-key">floor</span><span class="hv-val">9 층</span></div>
+        <div class="house-var"><span class="hv-key">build_year</span><span class="hv-val">2018 년</span></div>
+        <div class="house-var"><span class="hv-key">noise_level</span><span class="hv-val">4 점</span></div>
+      </div>
+    </div>
+
+    <div class="house-card">
+      <div class="house-num">House 03</div>
+      <div class="house-name">관악구 신림동 원룸</div>
+      <div class="house-vars">
+        <div class="house-var"><span class="hv-key">area</span><span class="hv-val">20 ㎡</span></div>
+        <div class="house-var"><span class="hv-key">dist_subway</span><span class="hv-val">420 m</span></div>
+        <div class="house-var"><span class="hv-key">floor</span><span class="hv-val">2 층</span></div>
+        <div class="house-var"><span class="hv-key">build_year</span><span class="hv-val">2001 년</span></div>
+        <div class="house-var"><span class="hv-key">noise_level</span><span class="hv-val">6 점</span></div>
+      </div>
+    </div>
+
+    <div class="house-card">
+      <div class="house-num">House 04</div>
+      <div class="house-name">서대문구 연희동 투룸</div>
+      <div class="house-vars">
+        <div class="house-var"><span class="hv-key">area</span><span class="hv-val">42 ㎡</span></div>
+        <div class="house-var"><span class="hv-key">dist_subway</span><span class="hv-val">1100 m</span></div>
+        <div class="house-var"><span class="hv-key">floor</span><span class="hv-val">5 층</span></div>
+        <div class="house-var"><span class="hv-key">build_year</span><span class="hv-val">2015 년</span></div>
+        <div class="house-var"><span class="hv-key">noise_level</span><span class="hv-val">2 점</span></div>
+      </div>
+    </div>
+
+    <div class="house-card wide">
+      <div class="house-num">House 05</div>
+      <div class="house-name">은평구 응암동 신축 원룸</div>
+      <div class="house-vars" style="display:grid; grid-template-columns:1fr 1fr; gap:6px 40px;">
+        <div class="house-var"><span class="hv-key">area</span><span class="hv-val">29 ㎡</span></div>
+        <div class="house-var"><span class="hv-key">dist_subway</span><span class="hv-val">350 m</span></div>
+        <div class="house-var"><span class="hv-key">floor</span><span class="hv-val">7 층</span></div>
+        <div class="house-var"><span class="hv-key">build_year</span><span class="hv-val">2022 년</span></div>
+        <div class="house-var"><span class="hv-key">noise_level</span><span class="hv-val">5 점</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 제출 -->
+  <div class="sec-label">제출 안내</div>
+  <div class="sec-title">결과물 & 평가 기준</div>
+
+  <div class="submit-box">
+    <div class="sb-item">
+      <h4>제출 항목</h4>
+      <ul>
+        <li>Google Colab 링크 (공유 설정 ON)</li>
+        <li>5곳 예측 월세가 출력된 셀 캡처</li>
+        <li>최종 선택 집과 이유 (마크다운, 3줄 이상)</li>
+      </ul>
+    </div>
+    <div class="sb-item">
+      <h4>평가 기준</h4>
+      <ul>
+        <li>상관분석 수행 및 변수 제외 근거 명시</li>
+        <li>모델 R² 및 회귀계수 해석 포함 여부</li>
+        <li>5곳 예측값 정확한 출력</li>
+        <li>선택 이유의 논리성 (데이터 근거 사용)</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- 푸터 -->
+<div class="footer">
+  <div class="footer-left">"데이터가 말하게 하라."</div>
+  <div class="footer-right">
+    동물자원과학과 · 데이터분석 실습<br>
+    Google Colab · Python · sklearn
+  </div>
+</div>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.step, .house-card').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
