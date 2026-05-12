@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>동물자원과학과 · 회귀분석 실습</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #fff;
+    color: #111;
+    max-width: 560px;
+    margin: 80px auto;
+    padding: 0 24px;
+  }
+
+  .course {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 48px;
+    line-height: 1.4;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #bbb;
+    margin-bottom: 12px;
+  }
+
+  .link-list {
+    list-style: none;
+    border-top: 1px solid #e8e8e8;
+    margin-bottom: 40px;
+  }
+
+  .link-list li {
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  .link-list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    text-decoration: none;
+    color: #111;
+    font-size: 14px;
+    font-weight: 400;
+    transition: color 0.15s;
+  }
+
+  .link-list a:hover { color: #555; }
+
+  .link-list a .arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #ccc;
+  }
+
+  .link-list a:hover .arrow { color: #999; }
+
+  .link-list .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #bbb;
+    margin-top: 2px;
+    display: block;
+  }
+
+  .link-text { display: flex; flex-direction: column; }
+
+  footer {
+    margin-top: 60px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #ccc;
+    letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+
+  <div class="course">동물자원과학과 · 데이터분석 실습</div>
+  <h1>회귀분석과<br>예측모델 만들기</h1>
+
+  <div class="section-label">이론</div>
+  <ul class="link-list">
+    <li>
+      <a href="regression_slides.html" target="_blank">
+        <div class="link-text">
+          회귀분석 이론 슬라이드
+          <span class="sub">LS · R² · 회귀계수 · 활용 예</span>
+        </div>
+        <span class="arrow">↗</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="section-label">실습</div>
+  <ul class="link-list">
+    <li>
+      <a href="regression_practice.html" target="_blank">
+        <div class="link-text">
+          실습 01 · 유튜브 영상 길이와 조회수
+          <span class="sub">단순회귀 · 잔차 시각화 · 예측</span>
+        </div>
+        <span class="arrow">↗</span>
+      </a>
+    </li>
+    <li>
+      <a href="rent_practice.html" target="_blank">
+        <div class="link-text">
+          실습 02 · 자취방 월세 예측모델
+          <span class="sub">다중회귀 · 모델 저장 · 직접 입력 예측</span>
+        </div>
+        <span class="arrow">↗</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="section-label">과제</div>
+  <ul class="link-list">
+    <li>
+      <a href="rent_assignment.html" target="_blank">
+        <div class="link-text">
+          과제 · 후보 집 5곳의 월세를 예측하라
+          <span class="sub">변수 선택 · 모델 구축 · 예측 · 최종 선택</span>
+        </div>
+        <span class="arrow">↗</span>
+      </a>
+    </li>
+  </ul>
+
+  <footer>Google Colab · Python · sklearn</footer>
+
+</body>
+</html>
