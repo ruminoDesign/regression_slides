@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회귀분석 이론 강의</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #e8e8e8;
+    padding: 40px 20px;
+  }
+
+  .slide {
+    width: 960px;
+    min-height: 540px;
+    margin: 0 auto 60px auto;
+    background: #ffffff;
+    border: 1.5px solid #cccccc;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+
+  /* 슬라이드 상단 헤더 바 */
+  .slide-header {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 2px solid #111;
+  }
+
+  .slide-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #ffffff;
+    background: #111;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .slide-topic {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #555;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #ddd;
+    text-transform: uppercase;
+  }
+
+  .slide-course {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #aaa;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  /* 슬라이드 본문 */
+  .slide-body {
+    padding: 36px 48px 32px 48px;
+  }
+
+  .slide-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .slide-subtitle {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: #888;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  /* ── SLIDE 1: LS 방법 ── */
+  .ls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .ls-left { }
+
+  .concept-box {
+    border: 1.5px solid #111;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+
+  .concept-box h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: #888;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .concept-box p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #333;
+  }
+
+  .formula-block {
+    border: 1.5px solid #111;
+    padding: 16px 20px;
+    background: #fafafa;
+  }
+
+  .formula-block h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: #888;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  .formula sub {
+    font-size: 10px;
+  }
+
+  .formula-note {
+    font-size: 11px;
+    color: #777;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* 잔차 시각화 SVG */
+  .vis-area {
+    border: 1.5px solid #ddd;
+    padding: 12px;
+    background: #fff;
+  }
+
+  .vis-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #888;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .step-list {
+    list-style: none;
+    margin-top: 14px;
+  }
+
+  .step-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12.5px;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 7px;
+  }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    background: #111;
+    color: #fff;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ── SLIDE 2: R² ── */
+  .r2-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .ss-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-bottom: 16px;
+  }
+
+  .ss-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    background: #111;
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  .ss-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #e8e8e8;
+    color: #333;
+    line-height: 1.5;
+  }
+
+  .ss-table tr:nth-child(even) td { background: #fafafa; }
+
+  .r2-scale {
+    margin: 16px 0;
+    border: 1.5px solid #ddd;
+    padding: 14px 16px;
+  }
+
+  .r2-scale-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .scale-bar {
+    display: flex;
+    height: 22px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .scale-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    border-right: 1px solid #ccc;
+  }
+
+  .scale-seg:last-child { border-right: none; }
+
+  .scale-seg.s1 { width: 25%; background: #f0f0f0; color: #aaa; }
+  .scale-seg.s2 { width: 25%; background: #e0e0e0; color: #888; }
+  .scale-seg.s3 { width: 25%; background: #c8c8c8; color: #555; }
+  .scale-seg.s4 { width: 25%; background: #a0a0a0; color: #fff; }
+
+  .scale-desc {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #888;
+  }
+
+  .caution-box {
+    border-left: 3px solid #111;
+    padding: 10px 14px;
+    background: #fafafa;
+    font-size: 12px;
+    color: #444;
+    line-height: 1.6;
+    margin-top: 14px;
+  }
+
+  .caution-box strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+    color: #111;
+  }
+
+  /* ── SLIDE 3: 회귀계수 방향 ── */
+  .coef-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .direction-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .dir-card {
+    border: 1.5px solid #111;
+    padding: 14px 16px;
+  }
+
+  .dir-card .dir-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 6px;
+  }
+
+  .dir-card h4 {
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  .dir-card p {
+    font-size: 11.5px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .dir-card .example-tag {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: #f0f0f0;
+    color: #555;
+    padding: 2px 7px;
+  }
+
+  .diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .diff-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: #111;
+    color: #fff;
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  .diff-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #e8e8e8;
+    color: #333;
+    line-height: 1.5;
+    vertical-align: top;
+  }
+
+  .diff-table tr:nth-child(even) td { background: #fafafa; }
+
+  .multi-note {
+    border: 1.5px solid #ddd;
+    padding: 12px 16px;
+    margin-top: 14px;
+    background: #fafafa;
+  }
+
+  .multi-note h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  .multi-note p {
+    font-size: 12px;
+    color: #444;
+    line-height: 1.6;
+  }
+
+  /* ── SLIDE 4: 활용 예 ── */
+  .usage-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .usage-card {
+    border: 1.5px solid #ddd;
+    padding: 16px 18px;
+  }
+
+  .usage-card h3 {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .usage-card h3 .icon {
+    font-size: 15px;
+  }
+
+  .usage-items {
+    list-style: none;
+  }
+
+  .usage-items li {
+    font-size: 12px;
+    color: #444;
+    line-height: 1.6;
+    padding: 3px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+  }
+
+  .usage-items li::before {
+    content: '→';
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #aaa;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .bottom-message {
+    margin-top: 20px;
+    border-top: 2px solid #111;
+    padding-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .bottom-message .bm-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    white-space: nowrap;
+  }
+
+  .bottom-message .bm-text {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+  }
+
+  /* 인쇄 설정 */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .slide {
+      border: none;
+      margin: 0;
+      width: 100%;
+      page-break-after: always;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1 — 최소제곱법 (Least Squares)
+════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-number">SLIDE 01 / 04</div>
+    <div class="slide-topic">회귀분석 이론</div>
+    <div class="slide-course">Regression Analysis · Google Colab</div>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">최소제곱법</div>
+    <div class="slide-subtitle">Ordinary Least Squares, OLS — 회귀선을 찾는 수학적 원리</div>
+
+    <div class="ls-grid">
+      <div class="ls-left">
+        <div class="concept-box">
+          <h3>핵심 질문</h3>
+          <p>산점도에 수많은 직선을 그을 수 있다. 그 중 <strong>데이터를 가장 잘 대표하는 선</strong>은 어떻게 정의하는가?</p>
+        </div>
+
+        <div class="formula-block">
+          <h3>목적함수 — SSE 최소화</h3>
+          <div class="formula">SSE = Σ(yᵢ − ŷᵢ)²  →  min</div>
+          <div class="formula-note">
+            yᵢ : 실제값 &nbsp;|&nbsp; ŷᵢ : 예측값 &nbsp;|&nbsp; (yᵢ − ŷᵢ) : 잔차(residual)<br>
+            제곱을 취하는 이유 → 양수/음수 잔차의 상쇄 방지
+          </div>
+        </div>
+
+        <ul class="step-list">
+          <li><span class="step-num">1</span>각 데이터 점에서 회귀선까지의 거리 = 잔차</li>
+          <li><span class="step-num">2</span>잔차를 제곱하여 모두 합산 → SSE</li>
+          <li><span class="step-num">3</span>SSE가 최소가 되는 기울기(β₁)와 절편(β₀)을 수학적으로 도출</li>
+          <li><span class="step-num">4</span>도출된 선 = 최소제곱 회귀선</li>
+        </ul>
+      </div>
+
+      <div class="ls-right">
+        <div class="vis-label">VISUALIZATION — 잔차 개념도</div>
+        <div class="vis-area">
+          <svg viewBox="0 0 380 270" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <!-- 축 -->
+            <line x1="40" y1="240" x2="360" y2="240" stroke="#333" stroke-width="1.5"/>
+            <line x1="40" y1="20" x2="40" y2="240" stroke="#333" stroke-width="1.5"/>
+            <!-- 축 화살표 -->
+            <polygon points="360,237 368,240 360,243" fill="#333"/>
+            <polygon points="37,20 40,12 43,20" fill="#333"/>
+            <!-- 축 레이블 -->
+            <text x="364" y="245" font-family="JetBrains Mono" font-size="11" fill="#666">X</text>
+            <text x="28" y="14" font-family="JetBrains Mono" font-size="11" fill="#666">Y</text>
+
+            <!-- 회귀선 -->
+            <line x1="55" y1="210" x2="345" y2="58" stroke="#111" stroke-width="2"/>
+            <text x="300" y="52" font-family="JetBrains Mono" font-size="11" fill="#111">ŷ = β₀ + β₁x</text>
+
+            <!-- 데이터 포인트 & 잔차 표시 -->
+            <!-- pt1 -->
+            <circle cx="85" cy="175" r="5" fill="none" stroke="#555" stroke-width="1.5"/>
+            <line x1="85" y1="175" x2="85" y2="196" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+            <circle cx="85" cy="196" r="3" fill="#111"/>
+            <text x="90" y="186" font-family="JetBrains Mono" font-size="9" fill="#999">e₁</text>
+
+            <!-- pt2 -->
+            <circle cx="145" cy="120" r="5" fill="none" stroke="#555" stroke-width="1.5"/>
+            <line x1="145" y1="120" x2="145" y2="163" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+            <circle cx="145" cy="163" r="3" fill="#111"/>
+            <text x="150" y="143" font-family="JetBrains Mono" font-size="9" fill="#999">e₂</text>
+
+            <!-- pt3 (위) -->
+            <circle cx="200" cy="98" r="5" fill="none" stroke="#555" stroke-width="1.5"/>
+            <line x1="200" y1="98" x2="200" y2="130" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+            <circle cx="200" cy="130" r="3" fill="#111"/>
+            <text x="205" y="115" font-family="JetBrains Mono" font-size="9" fill="#999">e₃</text>
+
+            <!-- pt4 (아래) -->
+            <circle cx="260" cy="130" r="5" fill="none" stroke="#555" stroke-width="1.5"/>
+            <line x1="260" y1="100" x2="260" y2="130" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+            <circle cx="260" cy="100" r="3" fill="#111"/>
+            <text x="265" y="118" font-family="JetBrains Mono" font-size="9" fill="#999">e₄</text>
+
+            <!-- pt5 -->
+            <circle cx="315" cy="80" r="5" fill="none" stroke="#555" stroke-width="1.5"/>
+            <line x1="315" y1="70" x2="315" y2="80" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+            <circle cx="315" cy="70" r="3" fill="#111"/>
+            <text x="320" y="76" font-family="JetBrains Mono" font-size="9" fill="#999">e₅</text>
+
+            <!-- 범례 -->
+            <circle cx="55" cy="258" r="5" fill="none" stroke="#555" stroke-width="1.5"/>
+            <text x="65" y="262" font-family="JetBrains Mono" font-size="10" fill="#666">실제값 (yᵢ)</text>
+            <circle cx="170" cy="258" r="3" fill="#111"/>
+            <text x="178" y="262" font-family="JetBrains Mono" font-size="10" fill="#666">예측값 (ŷᵢ)</text>
+            <line x1="270" y1="258" x2="290" y2="258" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="294" y="262" font-family="JetBrains Mono" font-size="10" fill="#666">잔차 (eᵢ)</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2 — 결정계수 R²
+════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-number">SLIDE 02 / 04</div>
+    <div class="slide-topic">회귀분석 이론</div>
+    <div class="slide-course">Regression Analysis · Google Colab</div>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">결정계수 R²</div>
+    <div class="slide-subtitle">Coefficient of Determination — 모델이 데이터 변동을 얼마나 설명하는가</div>
+
+    <div class="r2-grid">
+      <div>
+        <table class="ss-table">
+          <tr>
+            <th>기호</th>
+            <th>명칭</th>
+            <th>의미</th>
+          </tr>
+          <tr>
+            <td><strong>SST</strong></td>
+            <td>전체 제곱합</td>
+            <td>데이터 전체의 변동 크기</td>
+          </tr>
+          <tr>
+            <td><strong>SSR</strong></td>
+            <td>회귀 제곱합</td>
+            <td>모델이 설명하는 변동</td>
+          </tr>
+          <tr>
+            <td><strong>SSE</strong></td>
+            <td>잔차 제곱합</td>
+            <td>모델이 설명 못한 변동</td>
+          </tr>
+        </table>
+
+        <div class="formula-block">
+          <h3>R² 공식</h3>
+          <div class="formula">R² = SSR / SST = 1 − SSE / SST</div>
+          <div class="formula-note" style="margin-top:10px;">
+            SST = SSR + SSE &nbsp;|&nbsp; 범위: 0 ≤ R² ≤ 1
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="r2-scale">
+          <div class="r2-scale-label">R² 해석 척도</div>
+          <div class="scale-bar">
+            <div class="scale-seg s1">0.0–0.3</div>
+            <div class="scale-seg s2">0.3–0.5</div>
+            <div class="scale-seg s3">0.5–0.7</div>
+            <div class="scale-seg s4">0.7–1.0</div>
+          </div>
+          <div class="scale-desc">
+            <span>설명력 낮음</span>
+            <span>보통</span>
+            <span>양호</span>
+            <span>높음</span>
+          </div>
+          <div style="margin-top:12px; font-size:12px; color:#444; line-height:1.7;">
+            <strong style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#111;">예시 해석</strong><br>
+            R² = 0.85 → 체중 변동의 <strong>85%</strong>를 이 모델로 설명 가능<br>
+            나머지 15%는 모델에 포함되지 않은 요인들
+          </div>
+        </div>
+
+        <div class="caution-box">
+          <strong>⚠ 주의 사항</strong>
+          R²이 높다고 반드시 좋은 모델이 아니다.<br>
+          · 변수를 무작정 추가하면 R²은 오른다 → <strong>과적합(overfitting)</strong> 위험<br>
+          · 다중회귀에서는 <strong>수정 R²(Adjusted R²)</strong>을 함께 확인<br>
+          · R²만으로 인과관계를 주장할 수 없음
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3 — 회귀계수의 방향과 상관관계
+════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-number">SLIDE 03 / 04</div>
+    <div class="slide-topic">회귀분석 이론</div>
+    <div class="slide-course">Regression Analysis · Google Colab</div>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">회귀계수의 방향과 상관관계</div>
+    <div class="slide-subtitle">Regression Coefficient & Correlation — 기울기가 말해주는 것</div>
+
+    <div class="coef-grid">
+      <div>
+        <div class="direction-cards">
+          <div class="dir-card">
+            <div class="dir-badge">β &gt; 0</div>
+            <h4>양의 관계</h4>
+            <p>X 증가 → Y 증가<br>기울기가 우상향</p>
+            <span class="example-tag">예: 사료량 → 체중</span>
+          </div>
+          <div class="dir-card">
+            <div class="dir-badge">β &lt; 0</div>
+            <h4>음의 관계</h4>
+            <p>X 증가 → Y 감소<br>기울기가 우하향</p>
+            <span class="example-tag">예: 스트레스 → 산유량</span>
+          </div>
+          <div class="dir-card">
+            <div class="dir-badge">β = 0</div>
+            <h4>무관계</h4>
+            <p>X 변화가 Y에<br>영향 없음</p>
+            <span class="example-tag">예: 귀 크기 → 체중</span>
+          </div>
+          <div class="dir-card">
+            <div class="dir-badge">|β|</div>
+            <h4>영향 크기</h4>
+            <p>절댓값이 클수록<br>X의 영향이 강함</p>
+            <span class="example-tag">표준화 계수 비교</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <table class="diff-table">
+          <tr>
+            <th>구분</th>
+            <th>상관계수 (r)</th>
+            <th>회귀계수 (β)</th>
+          </tr>
+          <tr>
+            <td><strong>목적</strong></td>
+            <td>두 변수의 선형 관계 강도 측정</td>
+            <td>X 1단위 변화에 따른 Y 변화량 추정</td>
+          </tr>
+          <tr>
+            <td><strong>범위</strong></td>
+            <td>−1 ≤ r ≤ 1</td>
+            <td>제한 없음 (단위에 따라 다름)</td>
+          </tr>
+          <tr>
+            <td><strong>방향</strong></td>
+            <td>부호로 관계 방향 파악</td>
+            <td>부호로 관계 방향 파악</td>
+          </tr>
+          <tr>
+            <td><strong>단위</strong></td>
+            <td>무단위 (표준화됨)</td>
+            <td>Y의 단위를 가짐</td>
+          </tr>
+        </table>
+
+        <div class="multi-note">
+          <h4>다중회귀에서 계수 해석</h4>
+          <p>
+            β₁ = 3.2 (사료량, kg) 의미:<br>
+            <em>"다른 변수들이 동일할 때, 사료량이 1kg 증가하면 체중은 평균 3.2kg 증가"</em><br><br>
+            → 다중회귀에서는 <strong>다른 변수를 통제한 상태</strong>에서의 순수 효과를 나타냄
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4 — 회귀분석 활용 예
+════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-number">SLIDE 04 / 04</div>
+    <div class="slide-topic">회귀분석 이론</div>
+    <div class="slide-course">Regression Analysis · Google Colab</div>
+  </div>
+  <div class="slide-body">
+    <div class="slide-title">회귀분석의 활용</div>
+    <div class="slide-subtitle">Applications — 측정 가능한 모든 곳에 회귀분석이 있다</div>
+
+    <div class="usage-grid">
+      <div class="usage-card">
+        <h3><span class="icon">🧬</span> 생물학</h3>
+        <ul class="usage-items">
+          <li>유전자 발현량 → 형질(표현형) 예측</li>
+          <li>개체 크기 · 나이 → 수명 추정</li>
+          <li>환경 온도 → 동물 성장속도 모델링</li>
+          <li>개체군 밀도 → 자원 경쟁 강도 예측</li>
+        </ul>
+      </div>
+
+      <div class="usage-card">
+        <h3><span class="icon">🏥</span> 의학 · 보건</h3>
+        <ul class="usage-items">
+          <li>혈압 · 콜레스테롤 → 심혈관 질환 위험도</li>
+          <li>약물 용량 → 치료 효과 (용량-반응 곡선)</li>
+          <li>나이 · BMI → 당뇨 발병 확률</li>
+          <li>흡연량 · 기간 → 폐암 위험도 정량화</li>
+        </ul>
+      </div>
+
+      <div class="usage-card">
+        <h3><span class="icon">📊</span> 인문 · 사회과학</h3>
+        <ul class="usage-items">
+          <li>교육 수준 · 소득 → 투표 성향 분석</li>
+          <li>실업률 변화 → 범죄율 상관관계</li>
+          <li>광고비 지출 → 브랜드 인지도 예측</li>
+          <li>인구 구조 변화 → 복지 수요 추정</li>
+        </ul>
+      </div>
+
+      <div class="usage-card">
+        <h3><span class="icon">🤖</span> AI · 현대 사회</h3>
+        <ul class="usage-items">
+          <li>클릭 · 구매 패턴 → 추천 알고리즘의 기반</li>
+          <li>주행 데이터 → 자율주행 사고 위험도 예측</li>
+          <li>SNS 감성 지수 → 주가 변동 예측</li>
+          <li>에너지 사용 패턴 → 탄소 배출량 추정</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bottom-message">
+      <div class="bm-label">Key Insight</div>
+      <div class="bm-text">
+        "숫자로 기록된 모든 현상은 회귀분석의 재료가 된다 — 데이터가 있는 곳에 예측이 있다"
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
